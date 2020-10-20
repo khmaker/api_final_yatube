@@ -7,7 +7,7 @@ from .serializers import (CommentSerializer,
                           GroupSerializer,
                           FollowSerializer,)
 from .permissions import IsOwnerOrReadOnly
-from .models import Comment, Post, Group, Follow
+from .models import Post, Group, Follow
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -30,13 +30,14 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
-        return Comment.objects.filter(post=post)
+        return post.comments.all()
 
 
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [IsOwnerOrReadOnly]
+    http_method_names = ['get', 'post']
 
 
 class FollowViewSet(viewsets.ModelViewSet):
@@ -45,6 +46,7 @@ class FollowViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['=user__username', '=following__username']
+    http_method_names = ['get', 'post']
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
