@@ -1,2 +1,2 @@
-# api_final
+# API для Yatube
 api final
