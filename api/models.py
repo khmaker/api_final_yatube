@@ -1,57 +1,73 @@
+# coding=utf-8
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db.models import (
+    CASCADE, CharField, DateTimeField, ForeignKey, Model,
+    SET_NULL, TextField, UniqueConstraint,
+)
 
 User = get_user_model()
 
 
-class Post(models.Model):
-    text = models.TextField()
-    pub_date = models.DateTimeField(auto_now_add=True,
-                                    db_index=True
-                                    )
-    author = models.ForeignKey(User,
-                               on_delete=models.CASCADE,
-                               related_name='posts',
-                               )
-    group = models.ForeignKey('Group',
-                              on_delete=models.SET_NULL,
-                              blank=True,
-                              null=True,
-                              related_name='posts',
-                              )
+class Post(Model):
+    text = TextField()
+    pub_date = DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+    )
+    author = ForeignKey(
+        User,
+        on_delete=CASCADE,
+        related_name='posts',
+    )
+    group = ForeignKey(
+        'Group',
+        on_delete=SET_NULL,
+        blank=True,
+        null=True,
+        related_name='posts',
+    )
 
 
-class Group(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField()
+class Group(Model):
+    title = CharField(max_length=200)
+    description = TextField()
 
 
-class Comment(models.Model):
-    created = models.DateTimeField(auto_now_add=True,
-                                   db_index=True
-                                   )
-    author = models.ForeignKey(User,
-                               on_delete=models.CASCADE,
-                               related_name='comments',
-                               )
-    post = models.ForeignKey(Post,
-                             on_delete=models.CASCADE,
-                             related_name='comments',
-                             null=False,
-                             )
-    text = models.TextField(blank=True)
+class Comment(Model):
+    created = DateTimeField(
+        auto_now_add=True,
+        db_index=True
+    )
+    author = ForeignKey(
+        User,
+        on_delete=CASCADE,
+        related_name='comments',
+    )
+    post = ForeignKey(
+        'Post',
+        on_delete=CASCADE,
+        related_name='comments',
+        null=False,
+    )
+    text = TextField(blank=True)
 
 
-class Follow(models.Model):
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             related_name='follower',
-                             )
-    following = models.ForeignKey(User,
-                                  on_delete=models.CASCADE,
-                                  related_name='following',
-                                  )
+class Follow(Model):
+    user = ForeignKey(
+        User,
+        on_delete=CASCADE,
+        related_name='follower',
+    )
+    following = ForeignKey(
+        User,
+        on_delete=CASCADE,
+        related_name='following',
+    )
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=['user', 'following'],
-                                               name='unique_following')]
+        constraints = (
+            UniqueConstraint(
+                fields=('user', 'following',),
+                name='unique_following'
+            ),
+        )

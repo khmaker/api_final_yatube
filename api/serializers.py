@@ -1,14 +1,18 @@
+# coding=utf-8
 from django.contrib.auth.models import User
 from rest_framework.serializers import (
     CurrentUserDefault, ModelSerializer, SlugRelatedField,
-    )
+)
 from rest_framework.validators import UniqueTogetherValidator
 
 from .models import Comment, Follow, Group, Post
 
 
 class PostSerializer(ModelSerializer):
-    author = SlugRelatedField(read_only=True, slug_field='username')
+    author = SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+    )
 
     class Meta:
         fields = '__all__'
@@ -16,7 +20,10 @@ class PostSerializer(ModelSerializer):
 
 
 class CommentSerializer(ModelSerializer):
-    author = SlugRelatedField(read_only=True, slug_field='username')
+    author = SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+    )
 
     class Meta:
         fields = '__all__'
@@ -30,18 +37,22 @@ class GroupSerializer(ModelSerializer):
 
 
 class FollowSerializer(ModelSerializer):
-    user = SlugRelatedField(read_only=True,
-                            slug_field='username',
-                            default=CurrentUserDefault())
-    following = SlugRelatedField(slug_field='username',
-                                 queryset=User.objects.all())
+    user = SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+        default=CurrentUserDefault(),
+    )
+    following = SlugRelatedField(
+        slug_field='username',
+        queryset=User.objects.all(),
+    )
 
     class Meta:
-        fields = ('user', 'following')
+        fields = ('user', 'following',)
         model = Follow
-        validators = [
-                UniqueTogetherValidator(
-                        queryset=Follow.objects.all(),
-                        fields=['user', 'following']
-                        )
-                ]
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'following',)
+            ),
+        )
