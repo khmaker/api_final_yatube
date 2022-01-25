@@ -2,7 +2,7 @@ asgiref==3.4.1
 atomicwrites==1.4.0
 attrs==20.2.0
 colorama==0.4.4
-Django==3.2.8
+Django>=3.2.11
 django-filter==2.4.0
 djangorestframework==3.12.1
 djangorestframework-simplejwt==4.4.0
