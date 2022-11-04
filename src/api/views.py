@@ -1,10 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import pagination
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import (
-    IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
-)
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from posts.models import Group, Post
@@ -29,11 +26,10 @@ class CommentViewSet(ModelViewSet):
     permission_classes = (IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save(author=self.request.user, post_id=self.kwargs.get('id'))
 
     def get_queryset(self):
-        post = get_object_or_404(Post, pk=self.kwargs.get('id'))
-        return post.comments.all()
+        return get_object_or_404(Post, pk=self.kwargs.get('id')).comments.all()
 
 
 class GroupViewSet(ReadOnlyModelViewSet):
@@ -44,7 +40,6 @@ class GroupViewSet(ReadOnlyModelViewSet):
 
 class FollowViewSet(ModelViewSet):
     serializer_class = FollowSerializer
-    permission_classes = (IsAuthenticated,)
     filter_backends = (SearchFilter,)
     search_fields = ('=user__username', '=following__username',)
     http_method_names = ('get', 'post',)
